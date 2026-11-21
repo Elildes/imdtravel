@@ -1,0 +1,20 @@
+"""IMDTravel - orquestrador de compra de passagens (Parte 1, BASELINE)."""
+import time
+
+from flask import Flask
+
+from .config import Config
+from .errors import register_error_handlers
+
+
+def create_app(config: Config | None = None) -> Flask:
+    config = config or Config.from_env()
+
+    app = Flask(__name__)
+    app.json.sort_keys = False
+    app.config["IMD"] = config
+    app.config["STARTED_AT"] = time.monotonic()
+
+
+    register_error_handlers(app)
+    return app
