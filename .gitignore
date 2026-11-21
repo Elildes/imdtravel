@@ -1,0 +1,31 @@
+# Python & Ambientes Virtuais
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Bancos de dados e Variáveis de Ambiente
+*.db
+*.db-wal
+*.db-shm
+.env
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains (IntelliJ IDEA e PyCharm)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# macOS (MacBook)
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
