@@ -1,15 +1,16 @@
 # IMDTravel — como testar
 
-Três formas de conferir que o sistema faz o que a
+Quatro formas de conferir que o sistema faz o que a
 [especificação da Parte 1](docs/parte1-especificacao.md) pede:
 
 | Forma | Para quê | Tempo |
 |---|---|---|
 | [Testes manuais com `curl`](#1-testes-manuais-com-curl) | Entender cada serviço, uma requisição por vez | — |
 | [`testes.sh`](#2-o-script-testessh) | Verificar o sistema inteiro, de fora, com um comando | ~10 s |
-| [Testes unitários](#3-testes-unitários) | Verificar a lógica de cada serviço, sem subir containers | ~1 min |
+| [Testes unitários](#3-testes-unitários) | Verificar a lógica do IMDTravel, sem subir containers | ~1 s |
+| [Painel local](#4-painel-local) | Fazer compras e consultas por menus, vendo a saúde dos containers | — |
 
-Todas partem do sistema no ar. Para instalar o ambiente e subir os serviços, veja
+Os testes unitários não precisam do sistema no ar; as outras formas, sim. Para instalar o ambiente e subir os serviços, veja
 [Como executar](EXECUCAO.md).
 
 ---
@@ -63,12 +64,14 @@ em `reason`.
    docker compose exec fidelity curl -s "localhost:8080/points?user=ana"
    ```
 
-6. **Os logs** dos quatro serviços: cada linha é um objeto JSON com `ts`, `svc`, `cid`,
-   `event` e `ms`. Filtrando pelo cid, aparecem as cinco requisições da compra, cada uma
-   com `requisicao.recebida` e `resposta.enviada` (esta com o `status` e a duração em `ms`):
+6. **Os logs** do IMDTravel: cada linha é um objeto JSON com `ts`, `svc`, `cid`, `event` e
+   `ms`. Filtrando pelo cid, aparecem a requisição recebida, as quatro chamadas de saída
+   (`chamada.saida`, com a dependência, o status e a duração) e a resposta enviada:
    ```
-   docker compose logs --no-log-prefix | grep meu-teste-1 | jq -c '{svc,event,ms,path,status}'
+   docker compose logs --no-log-prefix imdtravel | grep meu-teste-1 | jq -c '{event,ms,dependency,status}'
    ```
+   As imagens `baseline` de AirlinesHub, Exchange e Fidelity publicadas no Docker Hub escrevem
+   log de texto do Spring, não JSON.
    O `/health` só aparece no log quando a resposta não é 200, para o healthcheck do
    compose não afogar o resto.
 
@@ -212,5 +215,58 @@ antes de testar e diz qual projeto está no ar e onde ele foi subido.
 | No Windows: `bad interpreter` ou `$'\r': command not found` | O arquivo ficou com fim de linha CRLF: `sed -i 's/\r$//' testes.sh`. |
 | `nenhum par com assento livre — rode com --reiniciar` | O catálogo inteiro foi vendido: `./testes.sh --reiniciar`. |
 | A seção 7 parece travada | É esperado: com o Fidelity parado, a compra pode levar mais de dois minutos para dar 500 (não há timeout na Parte 1). O script espera até 10 minutos. |
+
+---
+
+## 3. Testes unitários
+
+Verificam a lógica do IMDTravel sem subir containers: as três dependências são simuladas com
+`requests-mock`. Requer o [uv](https://docs.astral.sh/uv/).
+
+```
+cd imdtravel
+uv sync              # cria o .venv com as dependências de desenvolvimento
+uv run pytest -v     # 25 testes, menos de 1 s
+```
+
+Cobrem: cálculo de valores e bônus (e o preço devolvido com o mesmo texto do AirlinesHub), ordem
+das quatro chamadas, propagação do `X-Correlation-Id`, ausência de timeout e de retentativa,
+validação (400), erros de negócio (404 e 409), falhas de dependência (500), registro em `/sales`,
+`/health` e log estruturado. Os testes ficam em [`imdtravel/unit/`](imdtravel/unit/).
+
+---
+
+## 4. Painel local
+
+Um painel no terminal, em Python com [`rich`](https://github.com/Textualize/rich), que faz pelos
+menus o mesmo que a seção 1 faz com `curl`. Roda fora do Docker, na raiz do repositório, com o
+sistema no ar (o [uv](https://docs.astral.sh/uv/) instala o `rich` sozinho na primeira vez):
+
+```
+uv run tools/painel.py
+```
+
+Acima do menu aparece sempre a saúde dos quatro serviços: estado do container, healthcheck do
+Docker, resposta do `GET /health`, tempo no ar e porta.
+
+| Opção | O que faz |
+|---|---|
+| 1 | Monitora a saúde dos containers ao vivo, a cada 3 s (`Ctrl+C` volta ao menu) |
+| 2 | Compra uma passagem (`POST /buyTicket`): mostra status, tempo, `X-Correlation-Id` devolvido, o JSON da resposta e, se quiser, o log da compra |
+| 3 | Lista as vendas registradas (`GET /sales`) |
+| 4 | Mostra o estoque e o preço dos 3 voos nos 7 dias (AirlinesHub) |
+| 5 | Mostra a taxa de câmbio atual (Exchange) |
+| 6 | Mostra os pontos de um usuário (Fidelity) |
+| 7 | Mostra o log do IMDTravel filtrado por `X-Correlation-Id` |
+| 8 | Faz uma requisição livre ao IMDTravel (aceita JSON malformado, para ver o 400) |
+
+Serve também para observar uma falha à mão. Num segundo terminal, rode
+`docker compose stop fidelity`: o painel mostra o Fidelity fora do ar. Faça uma compra pela opção 2
+(resposta 500) e veja na opção 4 que o assento foi consumido, e na opção 3 que a venda não foi
+registrada. Depois, `docker compose start fidelity`.
+
+Como no `testes.sh`, AirlinesHub, Exchange e Fidelity são consultados com `docker compose exec`,
+então o painel tem de rodar na pasta em que o sistema foi subido. Variáveis aceitas:
+`IMDTRAVEL_HOST_PORT`, `IMDTRAVEL` e `COMPOSE_FILE`.
 
 ---
