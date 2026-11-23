@@ -6,6 +6,7 @@ PARTE 1 - SEM TOLERÂNCIA A FALHAS (requisito, não descuido):
   * qualquer falha vira DependencyError, que o handler global transforma em 500.
 """
 import time
+from decimal import Decimal
 
 import requests
 
@@ -38,7 +39,7 @@ class Dependencies:
     @staticmethod
     def _json(service: str, resp, *campos):
         try:
-            corpo = resp.json()
+            corpo = resp.json(parse_float=Decimal)
         except ValueError as exc:
             raise DependencyError(service, "resposta não é JSON") from exc
         if not isinstance(corpo, dict) or any(c not in corpo for c in campos):
