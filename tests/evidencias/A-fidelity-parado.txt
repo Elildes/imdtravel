@@ -1,0 +1,15 @@
+
+=== Cenário A — Fidelity parado (falha DEPOIS do passo irreversível /sell)
+data: 2026-11-23T22:59:55Z
+ANTES:  assentos IMD200/2026-12-03 = 20   linhas em /sales = 93
+{"error":"dependency-failure","service":"fidelity"}
+
+status=500 tempo=0.772353s
+DEPOIS: assentos IMD200/2026-12-03 = 19   linhas em /sales = 93
+--- log do IMDTravel (cid obs-a1)
+{"ts":"2026-11-23T22:59:56.320+00:00","event":"requisicao.recebida","ms":0,"dependency":null,"status":null,"error":null}
+{"ts":"2026-11-23T22:59:56.325+00:00","event":"chamada.saida","ms":4.5,"dependency":"airlineshub","status":200,"error":null}
+{"ts":"2026-11-23T22:59:56.328+00:00","event":"chamada.saida","ms":3.3,"dependency":"exchange","status":200,"error":null}
+{"ts":"2026-11-23T22:59:57.084+00:00","event":"chamada.saida","ms":753.0,"dependency":"airlineshub","status":201,"error":null}
+{"ts":"2026-11-23T22:59:57.093+00:00","event":"chamada.falhou","ms":8.2,"dependency":"fidelity","status":null,"error":"ConnectionError"}
+{"ts":"2026-11-23T22:59:57.093+00:00","event":"resposta.enviada","ms":770.5,"dependency":null,"status":500,"error":null}
