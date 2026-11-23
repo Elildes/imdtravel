@@ -1,0 +1,9 @@
+compra ok | 201 | ["bonus","day","flight","rate","rateAsOf","transactionId","user","valueBRL","valueUSD"]
+voo inexistente | 404 | {"error":"not-found"}
+dia fora do catalogo | 404 | {"error":"not-found"}
+sem day | 400 | {"error":"invalid-request"}
+user vazio | 400 | {"error":"invalid-request"}
+json malformado | 400 | {"error":"invalid-request"}
+cid devolvido | cmp-123
+health | ["status","uptimeS"]
+sales (campos) | ["correlationId","day","flight","transactionId","ts","user","valueBRL","valueUSD"]
