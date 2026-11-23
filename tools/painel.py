@@ -23,7 +23,8 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from rich import box
-from rich.console import Console
+from rich.console import Console, Group
+from rich.live import Live
 from rich.json import JSON
 from rich.panel import Panel
 from rich.prompt import Prompt
@@ -100,8 +101,9 @@ def mostra_corpo(texto: str, titulo: str) -> None:
 
 
 # ---------------------------------------------------------------- telas
-def estado() -> None:
-    with console.status("Consultando os containers..."):
+def tabela_estado():
+    """Consulta o Docker e o /health dos 4 serviços e devolve a tabela pronta."""
+    if True:
         r = compose("ps", "-a", "--format", "json")
         containers = {}
         for linha in r.stdout.splitlines():
@@ -118,10 +120,8 @@ def estado() -> None:
             else:
                 saude[s] = (False, "container não está rodando")
 
-    if r.returncode != 0:
-        console.print(f"[red]docker compose ps falhou:[/] {r.stderr.strip()}")
-
-    t = Table(title="Estado do sistema", box=box.ROUNDED)
+    erro = f"[red]docker compose ps falhou:[/] {r.stderr.strip()}" if r.returncode != 0 else None
+    t = Table(title=f"Saúde dos containers · {time.strftime('%H:%M:%S')}", box=box.ROUNDED)
     for col in ("Serviço", "Container", "Docker health", "GET /health", "Uptime", "Porta"):
         t.add_column(col)
     for s in SERVICOS:
@@ -137,7 +137,25 @@ def estado() -> None:
         portas = c.get("Publishers") or []
         porta = ", ".join(dict.fromkeys(f"{p['PublishedPort']}→{p['TargetPort']}" for p in portas if p.get("PublishedPort")))
         t.add_row(s, f"[{cor_c}]{estado_c}[/]", f"[{cor_h}]{health}[/]", h, uptime, porta or "interna")
-    console.print(t)
+    return Group(erro, t) if erro else t
+
+
+def estado() -> None:
+    with console.status("Consultando os containers..."):
+        tabela = tabela_estado()
+    console.print(tabela)
+
+
+def monitorar() -> None:
+    """Atualiza a saúde dos containers a cada 3 s até Ctrl+C."""
+    console.print("[dim]Atualizando a cada 3 s. Ctrl+C volta ao menu.[/]")
+    with Live(tabela_estado(), console=console, refresh_per_second=4) as live:
+        try:
+            while True:
+                time.sleep(3)
+                live.update(tabela_estado())
+        except KeyboardInterrupt:
+            pass
 
 
 def comprar() -> None:
@@ -262,7 +280,7 @@ def logs(cid: str | None = None) -> None:
 
 # ---------------------------------------------------------------- menu
 OPCOES = {
-    "1": ("Estado dos containers e /health", estado),
+    "1": ("Monitorar a saúde dos containers (ao vivo)", monitorar),
     "2": ("Comprar passagem (POST /buyTicket)", comprar),
     "3": ("Vendas registradas (GET /sales)", vendas),
     "4": ("Estoque de assentos (AirlinesHub)", estoque),
@@ -277,12 +295,12 @@ OPCOES = {
 def main() -> None:
     console.print(Panel.fit(f"[bold]IMDTravel — painel local[/]\nIMDTravel em [cyan]{IMDTRAVEL}[/] · "
                             f"compose em [cyan]{RAIZ}[/]", border_style="magenta"))
-    estado()
     while True:
         console.print()
+        estado()                                          # a saúde aparece sempre acima do menu
         for k, (nome, _) in OPCOES.items():
             console.print(f"  [bold cyan]{k}[/] {nome}")
-        escolha = Prompt.ask("Opção", choices=list(OPCOES), default="1", show_choices=False)
+        escolha = Prompt.ask("Opção", choices=list(OPCOES), default="2", show_choices=False)
         if escolha == "0":
             break
         try:
