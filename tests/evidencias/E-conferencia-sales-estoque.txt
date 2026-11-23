@@ -1,0 +1,7 @@
+
+=== Cenário E — Conferência entre /sales e o estoque real (catálogo recém-reiniciado no cenário D)
+data: 2026-11-23T23:02:22Z
+ANTES:  assentos IMD300/2026-12-06 = 20
+status=500 tempo=0.695133s
+assentos vendidos pelo AirlinesHub (20 - 16): 4
+linhas em /sales para o par:  3

@@ -1,0 +1,13 @@
+
+=== Cenário C — Exchange parado (falha ANTES do passo irreversível)
+data: 2026-11-23T23:02:09Z
+ANTES:  assentos IMD200/2026-12-04 = 20   linhas em /sales = 94
+{"error":"dependency-failure","service":"exchange"}
+
+status=500 tempo=0.072956s
+DEPOIS: assentos IMD200/2026-12-04 = 20   linhas em /sales = 94
+--- log do IMDTravel (cid obs-c1)
+{"ts":"2026-11-23T23:02:09.730+00:00","event":"requisicao.recebida","ms":0,"dependency":null,"status":null,"error":null}
+{"ts":"2026-11-23T23:02:09.733+00:00","event":"chamada.saida","ms":2.7,"dependency":"airlineshub","status":200,"error":null}
+{"ts":"2026-11-23T23:02:09.801+00:00","event":"chamada.falhou","ms":68.1,"dependency":"exchange","status":null,"error":"ConnectionError"}
+{"ts":"2026-11-23T23:02:09.801+00:00","event":"resposta.enviada","ms":71.4,"dependency":null,"status":500,"error":null}

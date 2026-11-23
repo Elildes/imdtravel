@@ -1,0 +1,14 @@
+
+=== Cenário D — AirlinesHub parado (falha na primeira chamada)
+data: 2026-11-23T23:02:16Z
+ANTES:  linhas em /sales = 94
+{"error":"dependency-failure","service":"airlineshub"}
+
+status=500 tempo=0.027694s
+DEPOIS: linhas em /sales = 94
+--- o AirlinesHub guarda o estoque em memória: ao voltar, o catálogo recomeça com 20 assentos por par
+assentos IMD200/2026-12-03 depois do restart = 20  (antes do restart havia vendas nesse par)
+--- log do IMDTravel (cid obs-d1)
+{"ts":"2026-11-23T23:02:16.513+00:00","event":"requisicao.recebida","ms":0,"dependency":null,"status":null,"error":null}
+{"ts":"2026-11-23T23:02:16.538+00:00","event":"chamada.falhou","ms":24.1,"dependency":"airlineshub","status":null,"error":"ConnectionError"}
+{"ts":"2026-11-23T23:02:16.538+00:00","event":"resposta.enviada","ms":24.5,"dependency":null,"status":500,"error":null}
