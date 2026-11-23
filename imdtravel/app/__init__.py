@@ -7,6 +7,7 @@ from .config import Config
 from .errors import register_error_handlers
 from .logging_json import setup_logging
 from .correlation import register_correlation
+from .clients import Dependencies
 
 
 def create_app(config: Config | None = None) -> Flask:
@@ -18,6 +19,7 @@ def create_app(config: Config | None = None) -> Flask:
     app.config["IMD"] = config
     app.config["STARTED_AT"] = time.monotonic()
 
+    app.extensions["deps"] = Dependencies(config)
 
     register_correlation(app)
     register_error_handlers(app)
