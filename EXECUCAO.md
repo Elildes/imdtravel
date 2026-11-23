@@ -63,8 +63,9 @@ cd imdtravel
 docker compose up -d --build --wait
 ```
 
-- `--build` compila os quatro serviços. **A primeira vez leva alguns minutos** (baixa as
-  imagens base e as dependências do Maven); as seguintes usam o cache e levam segundos.
+- `--build` constrói a imagem do IMDTravel (Python, dependências instaladas pelo uv) e baixa do
+  Docker Hub as imagens dos outros três serviços. **A primeira vez leva alguns minutos**; as
+  seguintes usam o cache e levam segundos.
 - `--wait` só devolve o terminal quando os quatro estão saudáveis.
 - Sem `-d`, os logs ficam presos no terminal; `Ctrl+C` para tudo.
 
@@ -133,6 +134,9 @@ Termina com `Resumo: N passaram, 0 falharam`. O guia completo — testes manuais
 o que cada seção do `testes.sh` verifica, como ler uma falha, variáveis de ambiente e testes
 unitários — está em **[Como testar](TESTES.md)**.
 
+Para chamar os endpoints e acompanhar a saúde dos containers num painel no terminal:
+`uv run tools/painel.py` (requer o [uv](https://docs.astral.sh/uv/)).
+
 ---
 
 ## 5. Catálogo e configuração
@@ -171,8 +175,12 @@ mesmo valor.
 
 | Caminho | Conteúdo |
 |---|---|
-| [`docker-compose.hub.yml`](docker-compose.hub.yml) | Sobe o sistema com as imagens do Docker Hub |
+| [`docker-compose.yml`](docker-compose.yml) | Sobe o sistema: as 3 dependências do Docker Hub + o nosso IMDTravel |
+| [`docker-compose.hub.yml`](docker-compose.hub.yml) | Sobe o sistema só com as imagens do Docker Hub (IMDTravel de referência) |
+| [`imdtravel/`](imdtravel/) | Código do IMDTravel (Python/Flask), Dockerfile, `pyproject.toml` e testes unitários |
 | [`testes.sh`](testes.sh) | Verificação funcional |
+| [`tests/`](tests/) | Evidências dos testes, comparação com a referência e roteiro de observação |
+| [`tools/painel.py`](tools/painel.py) | Painel local em `rich` |
 | [`docs/`](docs/) | Especificações e figuras |
 
 ---
@@ -182,7 +190,7 @@ mesmo valor.
 | Sintoma | Causa provável e solução |
 |---|---|
 | `port is already allocated` na 8080 | Outro programa usa a porta. `IMDTRAVEL_HOST_PORT=9090 docker compose up -d --wait` e use `http://localhost:9090`. Rode o `testes.sh` com a mesma variável. |
-| Um serviço fica em `(health: starting)` muito tempo | A primeira subida da JVM é lenta em máquinas com pouca memória. Aumente a memória do Docker Desktop. `docker compose logs <serviço>` mostra o erro, se houver. |
+| Um serviço fica em `(health: starting)` muito tempo | AirlinesHub, Exchange e Fidelity são Java: a primeira subida da JVM é lenta em máquinas com pouca memória. Aumente a memória do Docker Desktop. `docker compose logs <serviço>` mostra o erro, se houver. |
 | `Cannot connect to the Docker daemon` | O Docker Desktop não está aberto (macOS/Windows) ou o serviço não está rodando (Linux: `sudo systemctl start docker`). |
 | No Windows: `bad interpreter` ou `$'\r': command not found` | O script ficou com fim de linha do Windows (CRLF). O `.gitattributes` do repositório força LF nos clones novos; se o problema aparecer, o arquivo foi editado ou copiado por um editor do Windows. Conserte com `sed -i 's/\r$//' testes.sh` e configure o editor para salvar com LF. |
 | O `testes.sh` diz que nenhum par tem assento livre | Muitas execuções esgotaram o catálogo. `./testes.sh --reiniciar`. |
