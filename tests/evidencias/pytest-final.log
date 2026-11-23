@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.8, pytest-9.2.0, pluggy-1.7.0 -- <repositório>/imdtravel/.venv/bin/python
+rootdir: <repositório>/imdtravel
+configfile: pyproject.toml
+testpaths: unit
+plugins: requests-mock-1.12.1
+collecting ... collected 25 items
+
+unit/test_buy_ticket.py::test_compra_ok PASSED                           [  4%]
+unit/test_buy_ticket.py::test_preco_sai_com_o_mesmo_texto_do_airlineshub PASSED [  8%]
+unit/test_buy_ticket.py::test_valor_em_reais_arredonda_em_duas_casas PASSED [ 12%]
+unit/test_buy_ticket.py::test_as_quatro_chamadas_na_ordem_com_o_mesmo_cid PASSED [ 16%]
+unit/test_buy_ticket.py::test_bonus_enviado_ao_fidelity PASSED           [ 20%]
+unit/test_buy_ticket.py::test_nenhuma_chamada_tem_timeout PASSED         [ 24%]
+unit/test_buy_ticket.py::test_cid_gerado_quando_ausente PASSED           [ 28%]
+unit/test_buy_ticket.py::test_compra_gravada_em_sales PASSED             [ 32%]
+unit/test_buy_ticket.py::test_pedido_invalido_400[corpo0] PASSED         [ 36%]
+unit/test_buy_ticket.py::test_pedido_invalido_400[corpo1] PASSED         [ 40%]
+unit/test_buy_ticket.py::test_pedido_invalido_400[corpo2] PASSED         [ 44%]
+unit/test_buy_ticket.py::test_pedido_invalido_400[corpo3] PASSED         [ 48%]
+unit/test_buy_ticket.py::test_pedido_invalido_400[corpo4] PASSED         [ 52%]
+unit/test_buy_ticket.py::test_json_malformado_400 PASSED                 [ 56%]
+unit/test_buy_ticket.py::test_voo_inexistente_404 PASSED                 [ 60%]
+unit/test_buy_ticket.py::test_esgotado_409_sem_bonus PASSED              [ 64%]
+unit/test_buy_ticket.py::test_fidelity_com_erro_derruba_a_compra_mas_o_assento_foi_vendido PASSED [ 68%]
+unit/test_buy_ticket.py::test_exchange_fora_do_ar_500_antes_de_vender PASSED [ 72%]
+unit/test_buy_ticket.py::test_resposta_que_nao_e_json_vira_500 PASSED    [ 76%]
+unit/test_buy_ticket.py::test_nenhuma_retentativa PASSED                 [ 80%]
+unit/test_observability.py::test_health_ok PASSED                        [ 84%]
+unit/test_observability.py::test_health_down_quando_o_armazenamento_falha PASSED [ 88%]
+unit/test_observability.py::test_logs_json_com_campos_minimos PASSED     [ 92%]
+unit/test_observability.py::test_health_200_nao_polui_o_log PASSED       [ 96%]
+unit/test_observability.py::test_rota_inexistente_404_json PASSED        [100%]
+
+============================== 25 passed in 0.16s ==============================

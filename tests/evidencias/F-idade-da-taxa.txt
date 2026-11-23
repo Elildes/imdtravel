@@ -1,0 +1,5 @@
+
+=== Cenário F — Idade da taxa de câmbio (o Exchange atualiza a cada 10 s)
+data: 2026-11-23T23:02:32Z
+{"rate":5.5077,"rateAsOf":"2026-11-23T23:02:30.714684001Z"}
+{"rate":5.5124,"rateAsOf":"2026-11-23T23:02:40.714618048Z"}

@@ -1,0 +1,22 @@
+
+=== Cenário B — Fidelity congelado (docker pause: a conexão abre, a resposta não vem)
+data: 2026-11-23T23:00:03Z
+ANTES:  assentos IMD200/2026-12-03 = 19   linhas em /sales = 93
+--- o cliente (curl) desiste em 120 s; o IMDTravel não tem timeout
+
+status=000 tempo=120.005533s
+--- log do IMDTravel até aqui (cid obs-b1): a chamada ao Fidelity ainda não terminou
+{"ts":"2026-11-23T23:00:03.796+00:00","event":"requisicao.recebida","ms":0,"dependency":null,"status":null,"error":null}
+{"ts":"2026-11-23T23:00:03.799+00:00","event":"chamada.saida","ms":2.2,"dependency":"airlineshub","status":200,"error":null}
+{"ts":"2026-11-23T23:00:03.801+00:00","event":"chamada.saida","ms":2.2,"dependency":"exchange","status":200,"error":null}
+{"ts":"2026-11-23T23:00:04.529+00:00","event":"chamada.saida","ms":727.5,"dependency":"airlineshub","status":201,"error":null}
+--- depois de 120 s, durante o pause: assentos = 18   linhas em /sales = 93
+--- 5 s depois do unpause
+DEPOIS: assentos IMD200/2026-12-03 = 18   linhas em /sales = 94
+--- log do IMDTravel (cid obs-b1)
+{"ts":"2026-11-23T23:00:03.796+00:00","event":"requisicao.recebida","ms":0,"dependency":null,"status":null,"error":null}
+{"ts":"2026-11-23T23:00:03.799+00:00","event":"chamada.saida","ms":2.2,"dependency":"airlineshub","status":200,"error":null}
+{"ts":"2026-11-23T23:00:03.801+00:00","event":"chamada.saida","ms":2.2,"dependency":"exchange","status":200,"error":null}
+{"ts":"2026-11-23T23:00:04.529+00:00","event":"chamada.saida","ms":727.5,"dependency":"airlineshub","status":201,"error":null}
+{"ts":"2026-11-23T23:02:04.272+00:00","event":"chamada.saida","ms":119716.1,"dependency":"fidelity","status":201,"error":null}
+{"ts":"2026-11-23T23:02:04.280+00:00","event":"resposta.enviada","ms":120456.7,"dependency":null,"status":201,"error":null}
