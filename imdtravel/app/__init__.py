@@ -5,10 +5,13 @@ from flask import Flask
 
 from .config import Config
 from .errors import register_error_handlers
+from .logging_json import setup_logging
+from .correlation import register_correlation
 
 
 def create_app(config: Config | None = None) -> Flask:
     config = config or Config.from_env()
+    setup_logging()
 
     app = Flask(__name__)
     app.json.sort_keys = False
@@ -16,5 +19,6 @@ def create_app(config: Config | None = None) -> Flask:
     app.config["STARTED_AT"] = time.monotonic()
 
 
+    register_correlation(app)
     register_error_handlers(app)
     return app

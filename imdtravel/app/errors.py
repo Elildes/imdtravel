@@ -6,6 +6,8 @@ transforma erro em sucesso (requisito da Parte 1).
 from flask import jsonify
 from werkzeug.exceptions import HTTPException
 
+from .logging_json import log_event
+
 
 class AppError(Exception):
     status = 500
@@ -53,4 +55,5 @@ def register_error_handlers(app):
 
     @app.errorhandler(Exception)
     def _unexpected(exc):
+        log_event("erro.inesperado", error=type(exc).__name__, detail=str(exc))
         return jsonify({"error": "internal-error"}), 500
